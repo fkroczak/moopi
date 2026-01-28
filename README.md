@@ -4,6 +4,9 @@ Moopi is a compact DIY audio network streamer built on a Raspberry Pi 3B with a 
 ## Raspberry Pi Power Switch (GPIO)
 [Link to the Raspberry Pi Power Switch](Raspberry_Pi_Power_Switch.md)
 
+## MoOde LED Status-Anzeige (GPIO 18)
+[MoOde LED Status-Anzeige](MoOde_LED_Status.md)
+
 
 ## Notes
 
