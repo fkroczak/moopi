@@ -47,6 +47,66 @@ finally:
     GPIO.output(PIN, GPIO.LOW)
     GPIO.cleanup()
 ```
+Alternatives Skript bis Spotify erreichbar ist
+```
+#!/usr/bin/env python3
+import RPi.GPIO as GPIO
+import time
+import subprocess
+
+PIN = 12
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIN, GPIO.OUT, initial=GPIO.LOW)
+
+def blink(count=1, duration=0.2):
+    for _ in range(count):
+        GPIO.output(PIN, GPIO.HIGH)
+        time.sleep(duration)
+        GPIO.output(PIN, GPIO.LOW)
+        time.sleep(duration)
+
+print("Boot LED start")
+blink(10, 0.2)  # Phase 1: 10x Boot
+
+# Phase 2: DAUERBLINKEN bis Spotify FULLY ready (+20s Buffer)
+print("Dauerblinken bis Spotify ready...")
+timeout = 300
+start_time = time.time()
+buffer_start = None
+
+while time.time() - start_time < timeout:
+    # Kontinuierlich blinken (alle 1s Check)
+    blink(1, 0.8)  # Dauerhaftes Blinken (1.6s Zyklus)
+    
+    try:
+        if subprocess.run(['pgrep', '-f', 'librespot']).returncode == 0:
+            if buffer_start is None:
+                buffer_start = time.time()
+                print("librespot gestartet - starte 20s Buffer...")
+            
+            # Buffer-Zeit abgelaufen?
+            if time.time() - buffer_start >= 20:
+                print("20s Buffer done - Spotify ready! Dauerlicht!")
+                break
+                
+    except:
+        buffer_start = None  # Reset bei Fehlern
+
+# Dauerlicht
+GPIO.output(PIN, GPIO.HIGH)
+print("Dauerlicht EIN - Spotify erreichbar")
+
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    pass
+finally:
+    GPIO.output(PIN, GPIO.LOW)
+    GPIO.cleanup()
+
+```
 
 **Ausführbar machen**:
 
